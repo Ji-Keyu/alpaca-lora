@@ -184,9 +184,9 @@ def train(
     model = get_peft_model(model, config)
 
     if data_path.endswith(".json") or data_path.endswith(".jsonl"):
-        data = load_dataset("json", data_files=data_path)
+        data = load_dataset("json", data_files=data_path, name="train")
     else:
-        data = load_dataset(data_path)
+        data = load_dataset(data_path, name="train")
 
     if resume_from_checkpoint:
         # Check the available weights and load them
@@ -214,6 +214,20 @@ def train(
         train_val = data["train"].train_test_split(
             test_size=val_set_size, shuffle=True, seed=42
         )
+
+        # new_keys = {"prompt": "input", "old_key2": "new_key2"}
+        train_val["train"] = train_val["train"].rename_column("prompt", "input")
+        train_val["train"] = train_val["train"].filter(lambda example: example['prompt_label'] == 1)
+        train_val["train"] = train_val["train"].map(lambda example: {'input': example['input']})
+        train_val["train"] = train_val["train"].map(lambda example: {'instruction': 'Comment on the input'})
+        train_val["train"] = train_val["train"].map(lambda example: {'output': 'This is not appropriate. It contains discrimination against minority group.'})
+
+        train_val["test"] = train_val["test"].rename_column("prompt", "input")
+        train_val["test"] = train_val["test"].filter(lambda example: example['prompt_label'] == 1)
+        train_val["test"] = train_val["test"].map(lambda example: {'input': example['input']})
+        train_val["test"] = train_val["test"].map(lambda example: {'instruction': 'Comment on the input'})
+        train_val["test"] = train_val["test"].map(lambda example: {'output': 'This is not appropriate. It contains discrimination against minority group.'})
+
         train_data = (
             train_val["train"].shuffle().map(generate_and_tokenize_prompt)
         )
