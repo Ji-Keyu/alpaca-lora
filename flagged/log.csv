@@ -1,0 +1,15 @@
+Instruction,Input,Temperature,Top p,Top k,Beams,Max tokens,Stream output,Output,flag,username,timestamp
+Complete the text,Cat is cute and,0.1,0.75,40,4,128,False,"Cat is cute and
+
+### Instruction:
+Complete the text
+
+### Input:
+Cat is cute and",,,2023-09-06 15:15:23.647604
+Complete the text,Cat is cute and,0.1,0.75,40,4,128,False,"Cat is cute and
+
+### Instruction:
+Complete the text
+
+### Input:
+Cat is cute and",,,2023-09-06 15:15:27.754938

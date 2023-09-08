@@ -215,18 +215,15 @@ def train(
             test_size=val_set_size, shuffle=True, seed=42
         )
 
-        # new_keys = {"prompt": "input", "old_key2": "new_key2"}
-        train_val["train"] = train_val["train"].rename_column("prompt", "input")
-        train_val["train"] = train_val["train"].filter(lambda example: example['prompt_label'] == 1)
-        train_val["train"] = train_val["train"].map(lambda example: {'input': example['input']})
-        train_val["train"] = train_val["train"].map(lambda example: {'instruction': 'Comment on the input'})
-        train_val["train"] = train_val["train"].map(lambda example: {'output': 'This is not appropriate. It contains discrimination against minority group.'})
+        columns_to_keep = ['prompt']
+        for split in train_val.keys():
+            train_val[split] = train_val[split].filter(lambda example: example['prompt_label'] == 1)
+            columns_to_remove = [col for col in train_val[split].column_names if col not in columns_to_keep]
+            train_val[split] = train_val[split].remove_columns(columns_to_remove)
 
-        train_val["test"] = train_val["test"].rename_column("prompt", "input")
-        train_val["test"] = train_val["test"].filter(lambda example: example['prompt_label'] == 1)
-        train_val["test"] = train_val["test"].map(lambda example: {'input': example['input']})
-        train_val["test"] = train_val["test"].map(lambda example: {'instruction': 'Comment on the input'})
-        train_val["test"] = train_val["test"].map(lambda example: {'output': 'This is not appropriate. It contains discrimination against minority group.'})
+            train_val[split] = train_val[split].rename_column("prompt", "input")
+            train_val[split] = train_val[split].map(lambda example: {'instruction': 'Comment on the input'})
+            train_val[split] = train_val[split].map(lambda example: {'output': 'This is not appropriate. It contains discrimination against minority group.'})
 
         train_data = (
             train_val["train"].shuffle().map(generate_and_tokenize_prompt)

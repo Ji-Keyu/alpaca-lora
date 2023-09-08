@@ -99,13 +99,3 @@
 - --share_gradio=SHARE_GRADIO
       Type: bool
       Default: False
-
-
-# Output
-- temperature
-  Low temp => more predictable
-  High temp => less predictable
-- topk
-  Ignore anything below the k'th most probable token
-- topp
-- 
