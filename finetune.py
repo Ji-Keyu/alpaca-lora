@@ -185,8 +185,17 @@ def train(
 
     if data_path.endswith(".json") or data_path.endswith(".jsonl"):
         data = load_dataset("json", data_files=data_path, name="train")
+    elif data_path.endswith(".txt"):
+        data = load_dataset("text", data_files=data_path, name="train")
+        data['train'] = data['train'].rename_column("text", "input")
+        data['train'] = data['train'].map(lambda example: {'output': 'This is not appropriate. It contains discrimination against minority group.'})
+        data['train'] = data['train'].map(lambda example: {'instruction': 'Comment on the input.'})
     else:
         data = load_dataset(data_path, name="train")
+    print(data['train'])
+    print(data['train']['input'][0])
+    print(data['train']['instruction'][0])
+    print(data['train']['output'][0])
 
     if resume_from_checkpoint:
         # Check the available weights and load them
@@ -214,17 +223,6 @@ def train(
         train_val = data["train"].train_test_split(
             test_size=val_set_size, shuffle=True, seed=42
         )
-
-        columns_to_keep = ['prompt']
-        for split in train_val.keys():
-            train_val[split] = train_val[split].filter(lambda example: example['prompt_label'] == 1)
-            columns_to_remove = [col for col in train_val[split].column_names if col not in columns_to_keep]
-            train_val[split] = train_val[split].remove_columns(columns_to_remove)
-
-            train_val[split] = train_val[split].rename_column("prompt", "input")
-            train_val[split] = train_val[split].map(lambda example: {'instruction': 'Comment on the input'})
-            train_val[split] = train_val[split].map(lambda example: {'output': 'This is not appropriate. It contains discrimination against minority group.'})
-
         train_data = (
             train_val["train"].shuffle().map(generate_and_tokenize_prompt)
         )
@@ -271,12 +269,12 @@ def train(
     )
     model.config.use_cache = False
 
-    old_state_dict = model.state_dict
-    model.state_dict = (
-        lambda self, *_, **__: get_peft_model_state_dict(
-            self, old_state_dict()
-        )
-    ).__get__(model, type(model))
+    # old_state_dict = model.state_dict
+    # model.state_dict = (
+    #     lambda self, *_, **__: get_peft_model_state_dict(
+    #         self, old_state_dict()
+    #     )
+    # ).__get__(model, type(model))
 
     if torch.__version__ >= "2" and sys.platform != "win32":
         model = torch.compile(model)

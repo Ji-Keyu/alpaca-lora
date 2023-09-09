@@ -99,3 +99,20 @@
 - --share_gradio=SHARE_GRADIO
       Type: bool
       Default: False
+
+
+- End goal
+  - Generate datasets
+  - use it to train classifier identifies malicious content
+  - use it to fine tune language models to reduce their 
+- Current task
+  - Using toxigen, fine tune a model to reduce its toxicity
+
+- Methodology change in the future
+  - Start with smaller datasets to expediate prototyping
+
+
+- Next steps
+  - Continue to fine tune
+  - Compare other classifier for malicious content
+    - Study how these classifiers are trained

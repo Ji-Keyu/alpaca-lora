@@ -1,17 +1,3 @@
-
-#%% (I) Prep Data
-# Using toxigen here
-# https://huggingface.co/datasets/skg/toxigen-data/viewer/train/test
-# from datasets import load_dataset
-# TG_data = load_dataset("skg/toxigen-data", name="train", use_auth_token=True) # 250k training examples
-# TG_annotations = load_dataset("skg/toxigen-data", name="annotated", use_auth_token=True) # Human study
-import random
-hate_or_neutral = "hate"
-for group in ["black"]:#, "middle_east", "native_american"]:
-    with open(f"../TOXIGEN/prompts/{hate_or_neutral}_{group}_1k.txt", "r") as f:
-        prompts = f.read().splitlines()
-prompts = random.sample(prompts, k=2)
-
 #%% (I) Establish Baseline
 # 1. load RoBERTa_Toxigen, which scores the toxicity of text
 # https://github.com/microsoft/TOXIGEN/tree/main
@@ -31,6 +17,19 @@ pipeline = transformers.pipeline(
     torch_dtype=torch.float16,
     device_map="auto",
 )
+
+# 3. load data
+# Using toxigen here
+# https://huggingface.co/datasets/skg/toxigen-data/viewer/train/test
+# from datasets import load_dataset
+# TG_data = load_dataset("skg/toxigen-data", name="train", use_auth_token=True) # 250k training examples
+# TG_annotations = load_dataset("skg/toxigen-data", name="annotated", use_auth_token=True) # Human study
+import random
+hate_or_neutral = "hate"
+for group in ["black"]:#, "middle_east", "native_american"]:
+    with open(f"../TOXIGEN/prompts/{hate_or_neutral}_{group}_1k.txt", "r") as f:
+        prompts = f.read().splitlines()
+prompts = random.sample(prompts, k=2)
 
 # 4. feed the dataset, collect output
 sequences = pipeline(
@@ -60,6 +59,7 @@ print(f"For example, \nInput:{prompts[i]}\n\nOuput:{responses[i]}")
 # https://github.com/tloen/alpaca-lora/tree/main
 # https://huggingface.co/docs/trl/v0.4.7/en/sft_trainer
 # https://huggingface.co/datasets/timdettmers/openassistant-guanaco/viewer/default/train
+
 # 1. finetune with alpaca-lora or supervised fine tuning (SFT)
 
 
@@ -96,5 +96,10 @@ print(decoded_text)
 # ? maybe in the future
 
 # %%
-
+import random
+hate_or_neutral = "hate"
+for group in ["black"]:#, "middle_east", "native_american"]:
+    with open(f"../TOXIGEN/prompts/{hate_or_neutral}_{group}_1k.txt", "r") as f:
+        prompts = f.read().splitlines()
+prompts = random.sample(prompts, k=2)
 # %%
